@@ -1,0 +1,16 @@
+celery==5.5.1
+Django==5.0.6
+django-configurations==2.5.1
+django-cors-headers==4.3.1
+django-extensions==3.2.3
+djangorestframework==3.15.1
+djangorestframework-camel-case==1.4.2
+json5==0.9.25
+litellm==1.70.4
+more-itertools==10.6.0
+psycopg2-binary==2.9.9
+redis==5.2.1
+requests==2.32.3
+requests-unixsocket==0.3.0
+uWSGI==2.0.26
+whitenoise==6.6.0

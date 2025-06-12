@@ -1,0 +1,118 @@
+services:
+  app:
+    build: .
+    container_name: app
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8000/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: always
+
+  postgres:
+    image: postgres:16.2-bullseye
+    container_name: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: hn 
+      POSTGRES_PASSWORD: test1234 
+      POSTGRES_DB: hacker_news
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "hacker_news", "-U", "hn"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+    restart: always
+  
+  ollama:
+    image: ollama/ollama:0.6.5
+    container_name: ollama
+    ports:
+      - 11434:11434
+    volumes:
+      - ollama:/root/.ollama 
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    environment:
+      ALLOW_EMPTY_PASSWORD: "yes"
+    ports:
+      - 6379:6379
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      retries: 3
+      timeout: 5s
+
+  celery-worker:
+    build: .
+    container_name: celery-worker
+    volumes:
+      - .:/app
+    command: ["celery", "-A", "hacker_news", "worker", "-l", "info"]
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "celery", "-A", "hacker_news", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  flower:
+    image: mher/flower:2.0
+    container_name: flower
+    ports:
+      - 5555:5555
+    env_file:
+      - .env
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5555/healthcheck" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - 5672:5672  # broker
+      - 15672:15672  # web ui
+    environment:
+      RABBITMQ_DEFAULT_VHOST: hacker_news/
+    env_file:
+      - .env
+    volumes:
+      - rabbitmq_data:/data
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  rabbitmq_data:
+  ollama:

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.15/dist/tailwind.min.css" rel="stylesheet">
+  <title>Hacker News AI</title>
+</head>
+<body class="bg-gray-100">
+
+  <nav class="bg-gray-600 p-4">
+    <div class="container mx-auto flex justify-between items-center">
+      <div class="text-white text-xl font-semibold flex justify-between items-center">
+        <a href="/">&nbsp; Hacker News AI</a>
+      </div>
+      <div class="space-x-4">
+        <a href="/admin" class="text-white hover:text-gray-300">Admin</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mx-auto p-8">
+    <div class="bg-white p-4 rounded-lg shadow-md mb-4">
+      <h2 class="text-lg font-semibold">{{ story.title }}</h2>
+      <h3 class="text-sm text-gray-600">{{ story.created_on|date:"Y-m-d H:i:s" }}</h3>
+      <p class="text-sm text-gray-600">{{ story.url }}</p>
+      <h3 class="text-sm text-gray-600">Summary</h3>
+      <p class="text-sm text-gray-600"></p>{{ story.text|safe }}</p>
+      <h3 class="text-sm text-gray-600">Text</h3>
+      <p class="text-sm text-gray-600"></p>{{ article.text|safe }}</p>
+    </div>
+    <h2 class="text-lg font-semibold">Comments</h2>
+    {% for comment in comments %}
+      {% include 'comment.html' with comment=comment %}
+    {% endfor %}
+    <footer class="text-center pt-6">
+      <p>&COPY;2025 Hacker News AI</p>
+      <sup>(0.0.1)</sup>
+    </footer>
+  </div>
+
+</body>
+</html>
+    

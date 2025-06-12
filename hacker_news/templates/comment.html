@@ -1,0 +1,13 @@
+<div class="bg-white p-4 rounded-lg shadow-md mb-4">
+  <h2 class="text-lg font-semibold">
+    {% if comment.user %}{{ comment.user.username }}
+    {% else %}Deleted User
+    {% endif %}
+  </h2>
+  <h3 class="text-sm text-gray-600">{{ comment.created_on|date:"Y-m-d H:i:s" }}</h3>
+  <br />
+  <p class="text-sm text-gray-600">{{ comment.text|safe }}</p>
+  {% for reply in comment.replies %}
+    {% include 'comment.html' with comment=reply %}
+  {% endfor %}
+</div>
